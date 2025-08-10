@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cat Adventure</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    html,body { margin:0; padding:0; background:#111; color:#eee; font-family: system-ui, sans-serif; }
+    #game { display:block; margin:0 auto; background:#222; image-rendering: pixelated; }
+    #ui { position:fixed; top:8px; left:8px; background:rgba(0,0,0,0.5); padding:8px 12px; border-radius:6px; font-size:14px; }
+    button { cursor:pointer; }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="960" height="540"></canvas>
+  <div id="ui">
+    <div id="stageName"></div>
+    <div id="objective"></div>
+    <div id="inventory"></div>
+    <button id="nextBtn" style="display:none">Next Stage</button>
+  </div>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

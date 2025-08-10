@@ -1,0 +1,15 @@
+{
+  "name": "cat-adventure",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+  "build": "tsc --project tsconfig.json",
+  "watch": "tsc --watch --project tsconfig.json",
+  "start": "npm run build && npx http-server -c-1 ."
+  },
+  "devDependencies": {
+  "http-server": "^14.1.1",
+  "typescript": "^5.4.0"
+  }
+}
