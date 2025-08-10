@@ -9,13 +9,19 @@ const dist = join(root, 'dist');
 mkdirSync(dist, { recursive: true });
 
 // Copy root index.html and assets folder
+// Always start from root index.html (canonical home page)
 cpSync(join(root, 'index.html'), join(dist, 'index.html'));
-// Rewrite script path inside dist/index.html (original references ./dist/main.js)
+
+// Rewrite script path inside dist/index.html (normalize any ./dist/main.js -> ./main.js)
 try {
   const fs = await import('node:fs/promises');
   const idxPath = join(dist, 'index.html');
   let html = await fs.readFile(idxPath, 'utf8');
   html = html.replace(/src=("|')\.\/dist\/main\.js\1/, 'src="./main.js"');
+  // Ensure favicon link exists & not lost (add if missing)
+  if(!/rel=("|')icon\1/.test(html)) {
+    html = html.replace('<title>Cat Adventure</title>', '<title>Cat Adventure</title>\n  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />');
+  }
   await fs.writeFile(idxPath, html);
 } catch (e) {
   console.warn('Could not rewrite script path in index.html:', e.message);
@@ -24,10 +30,19 @@ if (existsSync(join(root, 'assets'))) {
   cpSync(join(root, 'assets'), join(dist, 'assets'), { recursive: true });
 }
 
-// Also copy any static files directly under src (like index.html there if needed)
-if (existsSync(join(root, 'src', 'index.html'))) {
-  // If there's an index inside src, prefer it (apply same rewrite)
-  cpSync(join(root, 'src', 'index.html'), join(dist, 'index.html'));
+// If there is NO root index.html but there is one in src, copy it instead
+// We no longer promote src/index.html; root version is authoritative.
+
+// Favicon convenience: copy favicon.svg (and duplicate as favicon.ico) to dist root so /favicon.ico works
+try {
+  const faviconSrc = join(root, 'assets', 'favicon.svg');
+  if (existsSync(faviconSrc)) {
+    cpSync(faviconSrc, join(dist, 'favicon.svg'));
+    // Duplicate as .ico (some browsers still auto-request /favicon.ico)
+    cpSync(faviconSrc, join(dist, 'favicon.ico'));
+  }
+} catch (e) {
+  console.warn('Favicon copy skipped:', e.message);
 }
 
 console.log('Static assets copied to dist');
