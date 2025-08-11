@@ -2,6 +2,10 @@ import { Game } from './engine/Game.js';
 import { RiverStage } from './stages/RiverStage.js';
 import { JungleStage } from './stages/JungleStage.js';
 import { MountainStage } from './stages/MountainStage.js';
+import { VirtualJoystick } from './input/VirtualJoystick';
+import { applyJoystickToKeyState } from './input/applyJoystickToKeys'; // existing function
+// If using key state approach:
+// import { applyJoystickToKeys } from './input/applyJoystickToKeys';
 
 const home = document.getElementById('home') as HTMLDivElement | null;
 const playBtn = document.getElementById('playBtn') as HTMLButtonElement | null;
@@ -110,3 +114,24 @@ function showStatus(text: string, ttl = 2){
 
 function openModal(){ modal.style.display='flex'; }
 function openGameOver(){ goModal.style.display='flex'; }
+
+// Virtual joystick integration
+// Ensure global keyState exists, then assign to local variable
+(globalThis as any).keyState = (globalThis as any).keyState || {};
+const keyState: Record<string, boolean> = (globalThis as any).keyState;
+
+let joystick: VirtualJoystick | null = null;
+function initJoystick() {
+  if (!joystick) {
+    joystick = new VirtualJoystick();
+    console.log('[Joystick] initialized');
+  }
+}
+window.addEventListener('DOMContentLoaded', initJoystick);
+
+// Call each frame (put inside your existing update loop):
+function update(dt: number) {
+  // ...existing code...
+  if (joystick) applyJoystickToKeyState(joystick, keyState);
+  // ...existing code...
+}
