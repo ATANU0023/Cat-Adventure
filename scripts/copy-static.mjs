@@ -17,7 +17,12 @@ try {
   const fs = await import('node:fs/promises');
   const idxPath = join(dist, 'index.html');
   let html = await fs.readFile(idxPath, 'utf8');
-  html = html.replace(/src=("|')\.\/dist\/main\.js\1/, 'src="./main.js"');
+  html = html.replace(/src=("|')\.\/dist\/main\.js\1/, 'src="./src/main.js"');
+  // If main.js (no src/ prefix) is referenced but only dist/src/main.js exists, rewrite:
+  if (!existsSync(join(dist, 'main.js')) && existsSync(join(dist,'src','main.js'))) {
+    html = html.replace(/<script([^>]*?)src=("|\')\.\/main\.js\2(.*?)><\/script>/,
+      '<script type="module" src="./src/main.js"></script>');
+  }
   // Ensure favicon link exists & not lost (add if missing)
   if(!/rel=("|')icon\1/.test(html)) {
     html = html.replace('<title>Cat Adventure</title>', '<title>Cat Adventure</title>\n  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />');
@@ -46,3 +51,7 @@ try {
 }
 
 console.log('Static assets copied to dist');
+
+<script>
+if(!('noModule' in HTMLScriptElement.prototype)){/*modern only*/}
+</script>
